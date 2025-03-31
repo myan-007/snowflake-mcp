@@ -1,0 +1,3 @@
+[commands]
+format = ["echo 'Running formatting...'"]
+test = ["echo 'Running tests...'"]
