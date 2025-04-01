@@ -1,6 +1,7 @@
 from typing import Any
 import httpx
 from mcp.server.fastmcp import FastMCP
+import yfinance as yf
 
 
 # Constants
@@ -39,7 +40,7 @@ def format_alert(feature: dict) -> str:
 if __name__ == "__main__":
     # Initialize FastMCP server
     mcp = FastMCP("weather")
-    
+
     @mcp.tool()
     async def get_alerts(state: str) -> str:
         """Get weather alerts for a US state.
@@ -95,5 +96,8 @@ if __name__ == "__main__":
         
         return "\n---\n".join(forecasts)
 
+
     # Run the server
     mcp.run(transport='stdio')
+
+#https://api.weather.gov/alerts/active/area/CA
