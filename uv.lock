@@ -887,6 +887,7 @@ dependencies = [
     { name = "mcp", extra = ["cli"] },
     { name = "requests-html" },
     { name = "ta" },
+    { name = "xlsxwriter" },
     { name = "yahoo-fin" },
     { name = "yfinance" },
 ]
@@ -898,6 +899,7 @@ requires-dist = [
     { name = "mcp", extras = ["cli"], specifier = ">=1.6.0" },
     { name = "requests-html", specifier = ">=0.10.0" },
     { name = "ta", specifier = ">=0.11.0" },
+    { name = "xlsxwriter", specifier = ">=3.2.2" },
     { name = "yahoo-fin", specifier = ">=0.8.9.1" },
     { name = "yfinance", specifier = ">=0.2.55" },
 ]
@@ -1039,6 +1041,15 @@ name = "websockets"
 version = "10.4"
 source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/85/dc/549a807a53c13fd4a8dac286f117a7a71260defea9ec0c05d6027f2ae273/websockets-10.4.tar.gz", hash = "sha256:eef610b23933c54d5d921c92578ae5f89813438fded840c2e9809d378dc765d3", size = 84877 }
+
+[[package]]
+name = "xlsxwriter"
+version = "3.2.2"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/a1/08/26f69d1e9264e8107253018de9fc6b96f9219817d01c5f021e927384a8d1/xlsxwriter-3.2.2.tar.gz", hash = "sha256:befc7f92578a85fed261639fb6cde1fd51b79c5e854040847dde59d4317077dc", size = 205202 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/9b/07/df054f7413bdfff5e98f75056e4ed0977d0c8716424011fac2587864d1d3/XlsxWriter-3.2.2-py3-none-any.whl", hash = "sha256:272ce861e7fa5e82a4a6ebc24511f2cb952fde3461f6c6e1a1e81d3272db1471", size = 165121 },
+]
 
 [[package]]
 name = "yahoo-fin"

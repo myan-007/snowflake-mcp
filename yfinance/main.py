@@ -4,8 +4,10 @@ import pandas as pd
 import numpy as np
 from datetime import datetime, timedelta
 import matplotlib.pyplot as plt
-import io
-import base64
+import xlsxwriter
+import os
+from typing import Dict, Union
+import pandas as pd
 from ta.trend import SMAIndicator, MACD
 from ta.momentum import RSIIndicator
 
@@ -18,7 +20,7 @@ class YFinanceMCP:
     def setup_tools(self):
         # Company Information Tools
         @self.mcp.tool()
-        def get_company_info(ticker: str) -> dict:
+        async def get_company_info(ticker: str) -> dict:
             """
             Get comprehensive information about a company.
             
@@ -53,7 +55,7 @@ class YFinanceMCP:
                 return {"error": str(e)}
                 
         @self.mcp.tool()
-        def get_financials(ticker: str, statement_type: str = "income") -> dict:
+        async def get_financials(ticker: str, statement_type: str = "income") -> dict:
             """
             Get financial statements for a company.
             
@@ -78,7 +80,7 @@ class YFinanceMCP:
                 return {"error": str(e)}
                 
         @self.mcp.tool()
-        def get_institutional_holders(ticker: str) -> dict:
+        async def get_institutional_holders(ticker: str) -> dict:
             """
             Get information about institutional holders of a stock.
             
@@ -95,11 +97,9 @@ class YFinanceMCP:
             except Exception as e:
                 return {"error": str(e)}
         
-        # Additional tools implementation continues...
-        
         # Market Data Tools
         @self.mcp.tool()
-        def get_current_price(tickers: str) -> dict:
+        async def get_current_price(tickers: str) -> dict:
             """
             Get current price and trading information for one or more stocks.
             
@@ -130,7 +130,7 @@ class YFinanceMCP:
                 return {"error": str(e)}
                 
         @self.mcp.tool()
-        def get_historical_data(ticker: str, period: str = "1y", interval: str = "1d") -> dict:
+        async def get_historical_data(ticker: str, period: str = "1y", interval: str = "1d") -> dict:
             """
             Get historical price data for a stock.
             
@@ -150,7 +150,7 @@ class YFinanceMCP:
         
         # Technical Analysis Tools
         @self.mcp.tool()
-        def calculate_technical_indicators(ticker: str, period: str = "1y") -> dict:
+        async def calculate_technical_indicators(ticker: str, period: str = "1y") -> dict:
             """
             Calculate key technical indicators for a stock.
             
@@ -206,7 +206,7 @@ class YFinanceMCP:
         
         # Report Generation Tools
         @self.mcp.tool()
-        def generate_stock_report(ticker: str) -> dict:
+        async def generate_stock_report(ticker: str) -> dict:
             """
             Generate a comprehensive stock analysis report.
             
@@ -296,7 +296,74 @@ class YFinanceMCP:
             except Exception as e:
                 return {"error": str(e)}
         
-        # Additional methods would continue here...
+        # Excel Generation Tools
+        @self.mcp.tool()
+        def write_json_to_excel(data: dict, file_name: str = "output.xlsx", location: str = "./") -> str:
+            """
+            Write JSON data to an Excel file with formatting.
+            
+            Args:
+                data (dict): JSON-like dictionary where keys are sheet names and values are lists of dictionaries (rows).
+                            Each dictionary represents a row, and its keys represent column headers.
+                file_name (str): Name of the output Excel file (default: output.xlsx).
+                location (str): Directory where the Excel file will be saved (default: current directory).
+
+            Returns:
+                str: Confirmation message with the file path if successful, or an error message if failed.
+
+
+            Example:
+                data = {
+                        "Sheet1": [
+                            {"Name": "Alice", "Age": 30, "Department": "HR"},
+                            {"Name": "Bob", "Age": 25, "Department": "IT"}
+                        ],
+                        "Sheet2": [
+                            {"Product": "Laptop", "Price": 1200, "Stock": 50},
+                            {"Product": "Phone", "Price": 800, "Stock": 200}
+                        ]
+                    }
+            """
+            try:
+                # Ensure the save directory exists
+                os.makedirs(location, exist_ok=True)
+                full_path = os.path.join(location, file_name)
+
+                # Create a new Excel workbook
+                workbook = xlsxwriter.Workbook(full_path)
+
+                # Iterate over sheets in the provided data
+                for sheet_name, rows in data.items():
+                    # Add a worksheet for each key in the JSON
+                    worksheet = workbook.add_worksheet(sheet_name[:31])  # Excel sheet names have a 31-character limit
+
+                    # Extract headers from the first row of data
+                    if not rows or not isinstance(rows, list):
+                        return f"Error: Data for sheet '{sheet_name}' must be a list of dictionaries."
+                    headers = list(rows[0].keys())
+
+                    # Write headers to the worksheet
+                    header_format = workbook.add_format({'bold': True, 'bg_color': '#D3D3D3', 'border': 1})
+                    for col_num, header in enumerate(headers):
+                        worksheet.write(0, col_num, header, header_format)
+
+                    # Write data rows to the worksheet
+                    for row_num, row in enumerate(rows, start=1):
+                        for col_num, header in enumerate(headers):
+                            value = row.get(header, "")
+                            worksheet.write(row_num, col_num, value)
+
+                    # Auto-adjust column widths based on content length
+                    for col_num, header in enumerate(headers):
+                        max_length = max(len(header), *(len(str(row.get(header, ""))) for row in rows))
+                        worksheet.set_column(col_num, col_num, max_length + 2)  # Add padding
+
+                # Close the workbook to save it
+                workbook.close()
+                return f"Excel file successfully created at {full_path}"
+            
+            except Exception as e:
+                return f"Error creating Excel file: {str(e)}"
             
     def run(self):
         self.mcp.run(transport='stdio')
